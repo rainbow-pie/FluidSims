@@ -8,20 +8,6 @@
 namespace FluidSims
 {
 
-	//struct Canvas
-	//{
-	//	std::size_t width;
-	//	std::size_t height;
-
-	//	std::size_t cX(const std::size_t x) const {
-	//		return x * cScale;
-	//	}
-
-	//	std::size_t cY(const std::size_t y) const {
-	//		return canvas.height - y * cScale;
-	//	}
-	//};
-
 	enum FIELD_TYPE
 	{
 		H_FIELD = 0,
@@ -31,15 +17,7 @@ namespace FluidSims
 
 	std::size_t cnt = 0;
 
-	// ----------------- start of simulator ------------------------------
-
-	float simHeight = 1.1;
-	//float cScale = canvas.height / simHeight;
-	//float simWidth = canvas.width / cScale;
 	float overRelaxation = 1.9;
-
-	glm::vec2 obstacle_pos = { 0.4f, 0.5f };
-	float obstacle_speed = 0.0f;
 
 	class Fluid;
 
@@ -235,7 +213,6 @@ namespace FluidSims
 						float y = j * h + h2;
 						float h_v = this->h_v[i * n + j];
 						float v_v = this->avgV(i, j);
-						//float v_v = this->sampleField(x, y, V_FIELD);
 						x = x - dt * h_v;
 						y = y - dt * v_v;
 						h_v = this->sampleField(x, y, H_FIELD);
@@ -246,7 +223,6 @@ namespace FluidSims
 						float x = i * h + h2;
 						float y = j * h;
 						float h_v = this->avgH(i, j);
-						//float h_v = this->sampleField(x, y, U_FIELD);
 						float v_v = this->v_v[i * n + j];
 						x = x - dt * h_v;
 						y = y - dt * v_v;
@@ -285,9 +261,6 @@ namespace FluidSims
 			this->smoke = this->newSmoke;
 		}
 
-		// ----------------- end of simulator ------------------------------
-
-
 		void simulate(const float dt, const float gravity, const std::size_t numIters) {
 
 			this->integrate(dt, gravity);
@@ -304,27 +277,6 @@ namespace FluidSims
 			this->advectSmoke(dt);
 		}
 
-		//RigidBody obstacle{ {0.5f, 0.5f}, 5.0f };
-		// 
-		//var scene =
-		//{
-		//  float gravity = -9.81f,
-		//  float dt = 1.0f / 120.0f,
-		//  float numIters = 100f,
-		//  frameNr = 0,
-		//  float overRelaxation = 1.9f,
-		//  float obstacleX = 0.0f,
-		//  float obstacleY = 0.0f,
-		//  float obstacleRadius = 0.15f,
-		//  bool paused = false,
-		//  sceneNr = 0,
-		//  bool showObstacle = false,
-		//  bool showStreamlines = false,
-		//  bool showVelocities = false,
-		//  bool showPressure = false,
-		//  bool showSmoke = true,
-		//  fluid = null
-		//};
 	};
 
 
@@ -396,48 +348,4 @@ glm::vec3 getSciColor(float val, float minVal, float maxVal) {
 	}
 
 	return { r, g, b };
-}
-
-
-void draw_streamlines_to_vector(const FluidSims::Fluid& fluid, std::vector<float>& lines, const std::size_t num_segs, const float seg_length)
-{
-	auto add_point_lines = [&lines](const glm::vec3& location, const glm::vec3& color)
-	{
-		lines.push_back(location.x);
-		lines.push_back(location.y);
-		lines.push_back(location.z);
-
-		lines.push_back(color[0]);
-		lines.push_back(color[1]);
-		lines.push_back(color[2]);
-	};
-
-	//const float segLength = 1.0f;
-
-	for (std::size_t i = 1; i < fluid.numX - 1; i += 5) {
-		for (std::size_t j = 1; j < fluid.numY - 1; j += 5) {
-
-			float x = (i + 0.5f);
-			float y = (j + 0.5f);
-
-			for (std::size_t n = 0; n < num_segs; ++n)
-			{
-				add_point_lines({ x - fluid.numX / 2 - 1, y - fluid.numY / 2 - 10, -65.0f }, { 0.1f, 0.1f, 0.1f });
-				const float h_v = fluid.sampleField(x * fluid.h, y * fluid.h, FluidSims::H_FIELD);
-				const float v_v = fluid.sampleField(x * fluid.h, y * fluid.h, FluidSims::V_FIELD);
-				//const float l = std::sqrt(h_v * h_v + v_v * v_v);
-				 //x += h_v / l * segLength;
-				 //y += v_v / l * segLength;
-				x += h_v * seg_length / fluid.h;
-				y += v_v * seg_length / fluid.h;
-
-
-				add_point_lines({ x - fluid.numX / 2 - 1, y - fluid.numY / 2 - 10, -65.0f }, { 0.1f, 0.1f, 0.1f });
-
-				if (x > fluid.numX)
-					break;
-			}
-
-		}
-	}
 }
